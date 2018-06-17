@@ -1,0 +1,25 @@
+﻿<Window x:Class="report.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:report"
+        mc:Ignorable="d"
+        Title="Report" Height="480" Width="900">
+    <Grid>
+        <Label Content="Отчет по тестированию" HorizontalAlignment="Left" Height="67" Margin="24,23,0,0" VerticalAlignment="Top" Width="453" FontSize="40"/>
+        <Label x:Name="labelTotal" Content="Тестируемые сотрудники" HorizontalAlignment="Left" Height="35" Margin="24,120,0,0" VerticalAlignment="Top" Width="230" FontSize="18" MouseLeftButtonUp="labelTotal_MouseLeftButtonUp" MouseMove="Label_MouseMove" MouseLeave="Label_MouseLeave"/>
+        <TextBox x:Name="textBoxTotal" HorizontalAlignment="Left" Height="25" Margin="314,125,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="84" FontSize="18" BorderThickness="0"/>
+        <Label x:Name="labelCompleted" Content="Завершили тестирование" HorizontalAlignment="Left" Height="35" Margin="24,170,0,0" VerticalAlignment="Top" Width="230" FontSize="18" MouseLeftButtonUp="labelCompleted_MouseLeftButtonUp" MouseMove="Label_MouseMove" MouseLeave="Label_MouseLeave"/>
+        <TextBox x:Name="textBoxCompleted" HorizontalAlignment="Left" Height="25" Margin="314,175,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="84" FontSize="18" BorderThickness="0"/>
+        <Label x:Name ="labelPassTest" Content="Сдали тест" HorizontalAlignment="Left" Height="35" Margin="24,220,0,0" VerticalAlignment="Top" Width="230" FontSize="18" MouseLeftButtonUp="labelPassTest_MouseLeftButtonUp"  MouseMove="Label_MouseMove" MouseLeave="Label_MouseLeave"/>
+        <TextBox x:Name="textBoxPassTest" HorizontalAlignment="Left" Height="25" Margin="314,225,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="84" FontSize="18" BorderThickness="0"/>
+        <Label x:Name ="labelNotCompleted" Content="Не завершили тестирование" HorizontalAlignment="Left" Height="35" Margin="24,270,0,0" VerticalAlignment="Top" Width="254" FontSize="18" MouseLeftButtonUp="labelNotCompleted_MouseLeftButtonUp"  MouseMove="Label_MouseMove" MouseLeave="Label_MouseLeave"/>
+        <TextBox x:Name ="textBoxNotCompleted"  HorizontalAlignment="Left" Height="25" Margin="314,275,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="84" FontSize="18" BorderThickness="0"/>
+        <Label x:Name="labelNotStarted" Content="Не приступали" HorizontalAlignment="Left" Height="35" Margin="24,320,0,0" VerticalAlignment="Top" Width="230" FontSize="18" MouseLeftButtonUp="labelNotStarted_MouseLeftButtonUp"  MouseMove="Label_MouseMove" MouseLeave="Label_MouseLeave"/>
+        <TextBox x:Name="textBoxNotStarted" HorizontalAlignment="Left" Height="25" Margin="314,325,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="84" FontSize="18" BorderThickness="0"/>
+        <DataGrid x:Name="dataGrigReport" HorizontalAlignment="Left" Height="275" Margin="422,134,0,0" VerticalAlignment="Top" Width="408" ItemsSource="{Binding}" CanUserAddRows="False" Visibility="Hidden"/>
+        <Button Content="Обновить" HorizontalAlignment="Left" Height="55" Margin="697,35,0,0" VerticalAlignment="Top" Width="133" FontSize="25" Click="Button_Click"/>
+
+    </Grid>
+</Window>

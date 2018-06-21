@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Odbc;
 using System.Data.OleDb;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,29 +26,161 @@ namespace report
     /// </summary>
     public partial class MainWindow : Window
     {
-        private DataTable dtTotal { get; set; }
-        private DataTable dtCompleted { get; set; }
-        private DataTable dtPassTest { get; set; }
-        private DataTable dtNotCompleted { get; set; }
-        private DataTable dtNotStarted { get; set; }
+
+        private string _mainConnectionString;
+        private string _mainBasePath;
+
+        public string MainConnectionString
+        {
+            get => _mainConnectionString;
+            set => _mainConnectionString = value;
+        }
+
+        public string MainBasePath
+        {
+            get => _mainBasePath;
+            set => _mainBasePath = value;
+        }
+
+
+        private DataTable DtTotal { get; set; }
+        private DataTable DtMain { get; set; }
+        private DataTable DtCompleted { get; set; }
+        private DataTable DtPassTest { get; set; }
+        private DataTable DtNotCompleted { get; set; }
+        private DataTable DtNotStarted { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            QueryReport();
+            SetBasePath();
+            GenerateResultArray();
+            
+            //QueryReport();
+        }
+
+        private void GenerateResultArray()
+        {
+            string sql;
+
+            //Тестируемые сотрудники
+            sql = "SELECT usr.usr_tn as ТН, usr.usr_fln as ФИО FROM usr";
+            DtTotal = DtResult(sql, MainConnectionString);
+            textBoxTotal.Text = DtTotal.Rows.Count + " чел.";
+
+
+            //Таблица результатов
+            sql =
+                @"SELECT 
+                    rez.usr_tn AS ТН,
+                    usr.usr_fln AS ФИО,
+                    qst.qst_id, 
+                    qst.qst_nm, 
+                    qst.qst_tp, 
+                    IIf([qst]![qst_tp]=""radio"",IIf([anw_anw]=1,1,0),0) AS Radio, 
+                    IIf([qst]![qst_tp]=""check"",IIf([anw_anw]=[rez_anw],1,0),0) AS [Check], 
+                    Sum(anw.anw_true) AS anw_anw, Count(anw.anw_true) AS rez_anw, 
+                    IIf([qst]![qst_tp]=""text"",IIf([sum_text]=[count_anw],1,0),0) AS [Text], Sum(IIf([anw]![anw_true]=[rez]![rez_vl],1,0)) AS sum_text, 
+                    Count(anw.anw_id) AS count_anw, 
+                    IIf(
+                        [qst]![qst_tp]=""radio"",
+                            IIf([anw_anw]=1,1,0),
+                                IIf([qst]![qst_tp]=""check"",
+                                    IIf([anw_anw]=[rez_anw],1,0),
+                                            IIf([qst]![qst_tp]=""text"",
+                                                    IIf([sum_text]=[count_anw],1,0),0))) AS Rezult
+                FROM usr INNER JOIN (qst INNER JOIN (anw INNER JOIN rez ON anw.anw_id = rez.anw_id) ON qst.qst_id = anw.qst_id) ON usr.usr_tn = rez.usr_tn
+                GROUP BY rez.usr_tn, usr.usr_fln, qst.qst_id, qst.qst_nm, qst.qst_tp;";
+            DtMain = DtResult(sql, MainConnectionString);
+
+            //Завершили тестирование
+            DtCompleted = DtMain.AsEnumerable()
+                .GroupBy(r => new { Col1 = r["ТН"], Col2 = r["ФИО"] })
+                .Select(g => g.OrderBy(r => r["qst_id"]).First())
+                .CopyToDataTable();
+        }
+
+        //ExecuteScalar
+        private string SingleResult(string sql, string connectionString)
+        {
+            string testingStaff = "#Ошибка";
+
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
+            {
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+
+                try
+                {
+                    conn.Open();
+                    testingStaff = cmd.ExecuteScalar().ToString();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+            }
+
+            return testingStaff;
+        }
+
+        //DataTable
+        private DataTable DtResult(string sql, string connectionString)
+        {
+            DataTable dtResult = null;
+
+            using (OleDbConnection conn = new OleDbConnection(connectionString))
+            {
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+                OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+                DataSet ds = new DataSet();
+
+                try
+                {
+                    conn.Open();
+                    da.Fill(ds, "t");
+                    dtResult = ds.Tables["t"];
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    Environment.Exit(0);
+                }
+            }
+
+             
+            return dtResult;
         }
 
         private void QueryReport()
         {
-            MsAccess acs = new MsAccess();
-            string connectionString = acs.MainConnectionString;
-            string sql =
-                $@"SELECT usr.usr_tn AS ТН, usr.usr_fln AS ФИО, Count(anw.anw_id) AS [Всего ответов], Sum(IIf([anw]![anw_true]=1,1,0)) AS Верно, IIf([Верно]=0,0,Round(([Верно]/[Всего ответов])*100,0)) AS Процент
-                    FROM anw RIGHT JOIN (usr LEFT JOIN rez ON usr.usr_tn = rez.usr_tn) ON anw.anw_id = rez.anw_id
-                    GROUP BY usr.usr_tn, usr.usr_fln
-                    ORDER BY usr.usr_fln;
-                    ";
-             
+
+            string sql = @"SELECT Count(qst.qst_id) AS [Count-qst_id] FROM qst";
+            //Кол-во вопросов
+            string countQuestions = SingleResult(sql, MainConnectionString);
+
+            string connectionString = MainConnectionString;
+            sql =
+                @"SELECT 
+                    rez.usr_tn, 
+                    qst.qst_id, 
+                    qst.qst_nm, 
+                    qst.qst_tp, 
+                    IIf([qst]![qst_tp]=""radio"",IIf([anw_anw]=1,1,0),0) AS Radio, 
+                    IIf([qst]![qst_tp]=""check"",IIf([anw_anw]=[rez_anw],1,0),0) AS [Check], 
+                    Sum(anw.anw_true) AS anw_anw, Count(anw.anw_true) AS rez_anw, 
+                    IIf([qst]![qst_tp]=""text"",IIf([sum_text]=[count_anw],1,0),0) AS [Text], Sum(IIf([anw]![anw_true]=[rez]![rez_vl],1,0)) AS sum_text, 
+                    Count(anw.anw_id) AS count_anw, 
+                    IIf(
+                        [qst]![qst_tp]=""radio"",
+                            IIf([anw_anw]=1,1,0),
+                                IIf([qst]![qst_tp]=""check"",
+                                    IIf([anw_anw]=[rez_anw],1,0),
+                                            IIf([qst]![qst_tp]=""text"",
+                                                    IIf([sum_text]=[count_anw],1,0),0))) AS Rezult
+                FROM qst INNER JOIN(anw INNER JOIN rez ON anw.anw_id = rez.anw_id) ON qst.qst_id = anw.qst_id
+                GROUP BY rez.usr_tn, qst.qst_id, qst.qst_nm, qst.qst_tp;";
+
             OleDbDataAdapter da = new OleDbDataAdapter(sql, connectionString);
 
             DataSet ds = new DataSet();
@@ -56,33 +191,29 @@ namespace report
             }
             catch (Exception)
             {
-                MessageBox.Show("Не могу найти базу данных!\nБаза Access должна быть расположена в одной папке с исполняемым файлом");
+                MessageBox.Show("Не могу найти базу данных!");
                 Environment.Exit(0);
             }
 
             int total = ds.Tables["t"].Rows.Count;
 
             //Тестируемые сотрудники
-            //DataTable dtTotal = new DataTable();
-            dtTotal = ds.Tables["t"];
-
+            DtTotal = ds.Tables["t"];
             textBoxTotal.Text = total.ToString() + " чел.";
 
             //Завершили тестирование
-            //DataTable dtCompleted = new DataTable();
             string qString = "[Всего ответов] = '10'";
-            dtCompleted = dtTotal.Select(qString).CopyToDataTable();
+            DtCompleted = DtTotal.Select(qString).CopyToDataTable();
 
-            int completed = dtCompleted.Rows.Count;
+            int completed = DtCompleted.Rows.Count;
             textBoxCompleted.Text = completed.ToString() + " чел.";
 
             //Сдали тест
-            //DataTable dtPassTest = new DataTable();
             qString = "[Верно] = '10'";
             try
             {
-                dtPassTest = dtTotal.Select(qString).CopyToDataTable();
-                int passTest = dtPassTest.Rows.Count;
+                DtPassTest = DtTotal.Select(qString).CopyToDataTable();
+                int passTest = DtPassTest.Rows.Count;
                 textBoxPassTest.Text = passTest.ToString() + " чел.";
             }
             catch (Exception)
@@ -95,8 +226,8 @@ namespace report
             qString = "[Всего ответов] < '10' AND [Всего ответов] > 0";
             try
             {
-                dtNotCompleted = dtTotal.Select(qString).CopyToDataTable();
-                int notCompleted = dtNotCompleted.Rows.Count;
+                DtNotCompleted = DtTotal.Select(qString).CopyToDataTable();
+                int notCompleted = DtNotCompleted.Rows.Count;
                 textBoxNotCompleted.Text = notCompleted.ToString() + " чел.";
             }
             catch (Exception)
@@ -109,8 +240,8 @@ namespace report
             qString = "[Всего ответов] = '0'";
             try
             {
-                dtNotStarted = dtTotal.Select(qString).CopyToDataTable();
-                int notStarted = dtNotStarted.Rows.Count;
+                DtNotStarted = DtTotal.Select(qString).CopyToDataTable();
+                int notStarted = DtNotStarted.Rows.Count;
                 textBoxNotStarted.Text = notStarted.ToString() + " чел.";
             }
             catch (Exception)
@@ -123,7 +254,7 @@ namespace report
         {
             try
             {
-                dataGrigReport.DataContext = dtTotal.DefaultView;
+                dataGrigReport.DataContext = DtTotal.DefaultView;
                 dataGrigReport.Visibility = Visibility.Visible;
             }
             catch (Exception)
@@ -137,7 +268,7 @@ namespace report
         {
             try
             {
-                dataGrigReport.DataContext = dtCompleted.DefaultView;
+                dataGrigReport.DataContext = DtCompleted.DefaultView;
                 dataGrigReport.Visibility = Visibility.Visible;
             }
             catch (Exception)
@@ -151,7 +282,7 @@ namespace report
         {
             try
             {
-                dataGrigReport.DataContext = dtPassTest.DefaultView;
+                dataGrigReport.DataContext = DtPassTest.DefaultView;
                 dataGrigReport.Visibility = Visibility.Visible;
 
             }
@@ -166,7 +297,7 @@ namespace report
         {
             try
             {
-                dataGrigReport.DataContext = dtNotCompleted.DefaultView;
+                dataGrigReport.DataContext = DtNotCompleted.DefaultView;
                 dataGrigReport.Visibility = Visibility.Visible;
             }
             catch (Exception)
@@ -180,7 +311,7 @@ namespace report
         {
             try
             {
-                dataGrigReport.DataContext = dtNotStarted.DefaultView;
+                dataGrigReport.DataContext = DtNotStarted.DefaultView;
                 dataGrigReport.Visibility = Visibility.Visible;
             }
             catch (Exception)
@@ -206,6 +337,29 @@ namespace report
         {
             QueryReport();
             dataGrigReport.Visibility = Visibility.Hidden;
+        }
+
+        //Проверка наличия пути к базе
+        private void SetBasePath()
+        {
+
+            string baseDirectory = Environment.CurrentDirectory;
+            string configFile = baseDirectory + @"\config.txt";
+            if (File.Exists(configFile))
+            {
+                System.IO.StreamReader file = new System.IO.StreamReader(configFile);
+                string line = file.ReadLine();
+                MainBasePath = line;
+                MainConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + line + ";Persist Security Info=True;Jet OLEDB:Database Password=lenovo";
+                // + ";Persist Security Info=True;Jet OLEDB:Database Password=lenovo"
+            }
+            else
+            {
+                MessageBox.Show("Конфигурационный файл не найден!\n" +
+                                "Создайте файл config.txt в папке с программой и " +
+                                "укажите в нем путь к базе данных");
+                Environment.Exit(0);
+            }
         }
     }
 }

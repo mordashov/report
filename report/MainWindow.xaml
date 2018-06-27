@@ -20,8 +20,8 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Label Content="Отчет по тестированию" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="67" Margin="24,23,0,0" VerticalAlignment="Top" Width="453" FontSize="40"/>
-        <Button Content="Обновить" Grid.Column="4" HorizontalAlignment="Left" Height="55" Margin="20,35,0,0" VerticalAlignment="Top" Width="133" FontSize="25" />
-        <StackPanel Name="stackPanelTable" Grid.ColumnSpan="6" Grid.Column="0" Grid.Row="1" Orientation="Vertical"></StackPanel>
+        <Button Content="Обновить" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Left" Height="55" Margin="20,35,0,0" VerticalAlignment="Top" Width="133" FontSize="25" />
+        <StackPanel Name="StackPanelTable" Grid.ColumnSpan="6" Grid.Column="0" Grid.Row="1" Orientation="Vertical"></StackPanel>
 
     </Grid>
 </Window>

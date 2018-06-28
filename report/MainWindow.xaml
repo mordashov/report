@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:report"
         mc:Ignorable="d"
-        Title="Report" Height="700" Width="900">
+        Title="Report" Height="700" Width="900" ScrollViewer.CanContentScroll="True">
     <Grid Name ="GridName">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"></ColumnDefinition>
@@ -17,11 +17,15 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="112"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="500"></RowDefinition>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Label Content="Отчет по тестированию" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="67" Margin="24,23,0,0" VerticalAlignment="Top" Width="453" FontSize="40"/>
         <Button Content="Обновить" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Left" Height="55" Margin="20,35,0,0" VerticalAlignment="Top" Width="133" FontSize="25" />
-        <StackPanel Name="StackPanelTable" Grid.ColumnSpan="6" Grid.Column="0" Grid.Row="1" Orientation="Vertical"></StackPanel>
-
+        <StackPanel Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="1" Name="StackPanelHead"  Orientation="Vertical"/>
+        <ScrollViewer Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="2">
+            <StackPanel Name="StackPanelTable"  Orientation="Vertical"/>
+        </ScrollViewer>
     </Grid>
 </Window>

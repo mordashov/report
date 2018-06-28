@@ -27,8 +27,8 @@ namespace report
     public partial class MainWindow : Window
     {
 
-        private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        //private string _mainConnectionString = @"Data Source=LENOVO\SQLEXPRESS;Initial Catalog=ufs;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        //private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        private string _mainConnectionString = @"Data Source=LENOVO\SQLEXPRESS;Initial Catalog=ufs;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         //private string _mainConnectionString = @"Data Source=alauda\alauda;Initial Catalog=ufs;User ID=prozorova_os;Password=q1w2e3r4";
 
         public string MainConnectionString
@@ -54,8 +54,8 @@ namespace report
         {
             int font = 16;
             string[] headName = new string[4]{"ТН","ФИО","Время (мин.)","Результат (%)"};
-            int[] wth = new[] {100, 140, 120, 120};
-            int[] marginLeft = new [] {20, 20, 300, 20};
+            int[] wth = new[] {100, 300, 120, 120};
+            int[] marginLeft = new [] {20, 20, 20, 20};
             TextBlock[] aHead = new TextBlock[4];
 
             string sql = "SELECT Count(*) FROM [dbo].[usr];";
@@ -86,7 +86,7 @@ namespace report
                 };
                 stackPanelRow[0].Children.Add(aHead[i]);
             }
-            StackPanelTable.Children.Add(stackPanelRow[0]);
+            StackPanelHead.Children.Add(stackPanelRow[0]);
 
             string connectionString = MainConnectionString;
             sql = @"
@@ -109,7 +109,7 @@ namespace report
                 Environment.Exit(0);
             }
 
-            int j = 1;
+            int j = 0;
             foreach (DataRow row in ds.Tables["t"].Rows)
             {
 
@@ -126,7 +126,7 @@ namespace report
                     {
                         Text = cell,
                         FontSize = font,
-                        Margin = new Thickness(marginLeft[i], 0, 0, 0),
+                        Margin = new Thickness(marginLeft[i], 20, 0, 0),
                         Width = wth[i]
                     };
                    

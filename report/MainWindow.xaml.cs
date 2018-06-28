@@ -37,26 +37,21 @@ namespace report
             set => _mainConnectionString = value;
         }
 
-        private DataTable DtTotal { get; set; }
-        private DataTable DtMain { get; set; }
-        private DataTable DtCompleted { get; set; }
-        private DataTable DtPassTest { get; set; }
-        private DataTable DtNotCompleted { get; set; }
-        private DataTable DtNotStarted { get; set; }
-
         public MainWindow()
         {
             InitializeComponent();
             CreateTable();
+            TotalSum();
         }
 
         private void CreateTable()
         {
-            int font = 16;
-            string[] headName = new string[4]{"ТН","ФИО","Время (мин.)","Результат (%)"};
-            int[] wth = new[] {100, 300, 120, 120};
-            int[] marginLeft = new [] {20, 20, 20, 20};
-            TextBlock[] aHead = new TextBlock[4];
+            int font = 16; // Размер шрифта
+            const int cl = 4; //Кол-во колонок
+            string[] headName = new string[cl] {"ТН","ФИО","Время (мин.)","Результат (%)"};
+            int[] wth = new int[cl] { 100, 300, 120, 120};
+            int[] marginLeft = new int[cl] { 40, 20, 20, 20};
+            TextBlock[] aHead = new TextBlock[cl];
 
             string sql = "SELECT Count(*) FROM [dbo].[usr];";
             int count = 0;
@@ -90,13 +85,14 @@ namespace report
 
             string connectionString = MainConnectionString;
             sql = @"
-                        SELECT [usr_tn]
-                            ,[usr_fln]
-	                        ,DATEDIFF(MI, MIN([usr_st]), MAX([usr_fn])) as [time]
-                            , SUM([Rezult])*100/(SELECT COUNT(*) FROM[dbo].[qst]) as [pr]
-                        FROM [dbo].[vwrep]
-                        GROUP BY[usr_fln], [usr_tn]
-                        ORDER BY[usr_fln], [usr_tn]";
+                    SELECT [usr].[usr_tn]
+                        ,[usr].[usr_fln]
+	                    ,DATEDIFF(MI, MIN([usr].[usr_st]), MAX([usr].[usr_fn])) as [time]
+                        , SUM([Rezult])*100/(SELECT COUNT(*) FROM[dbo].[qst]) as [pr]
+                    FROM [dbo].[vwrep]
+					RIGHT JOIN [dbo].[usr] ON [usr].[usr_tn] = [vwrep].[usr_tn]
+                    GROUP BY [usr].[usr_fln], [usr].[usr_tn]
+                    ORDER BY [usr].[usr_fln], [usr].[usr_tn]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
             DataSet ds = new DataSet();
             try
@@ -138,6 +134,20 @@ namespace report
             }
         }
 
+        private void TotalSum()
+        {
+            string sql = "SELECT COUNT(*) FROM [dbo].[usr]";
+
+            string t = SingleResult(sql, MainConnectionString);
+
+            sql = "SELECT COUNT(*) FROM [dbo].[usr] WHERE [usr].[usr_login] is not null AND [usr].[usr_login] != ''";
+
+            string s = SingleResult(sql, MainConnectionString);
+
+            LabelTotal.Content = $"Прошли тест {s} из {t} чел.";
+
+        }
+
         //Получение.отправка одиночого значения sql
         private string SingleResult(string sql, string connectionString)
         {
@@ -165,6 +175,19 @@ namespace report
             return result;
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in GridName.Children)
+            {
+                if (item is StackPanel panel)
+                {
+                    panel.Children.Clear();
+                }
+            }
+            
+            CreateTable();
+            TotalSum();
+        }
     }
 
 }

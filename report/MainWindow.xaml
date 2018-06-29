@@ -24,7 +24,7 @@
         <Label Content="Отчет по тестированию" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Left" Height="67" Margin="24,23,0,0" VerticalAlignment="Top" Width="453" FontSize="40"/>
         <Button Content="Обновить" Grid.Row="0" Grid.Column="4" HorizontalAlignment="Left" Height="55" Margin="20,35,0,0" VerticalAlignment="Top" Width="133" FontSize="25" Click="Button_Click" />
         <StackPanel Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="1" Name="StackPanelHead"  Orientation="Vertical"/>
-        <ScrollViewer Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="2">
+        <ScrollViewer Name="ScrollViewerTable" Grid.ColumnSpan="5" Grid.Column="0" Grid.Row="2">
             <StackPanel Name="StackPanelTable"  Orientation="Vertical"/>
         </ScrollViewer>
         <Label Name ="LabelTotal" Content="Прошли тест" Grid.Column="1" HorizontalAlignment="Left" Margin="10,30,0,0" Grid.Row="3" VerticalAlignment="Top" FontSize="18" FontWeight="Bold"/>

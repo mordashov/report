@@ -6,7 +6,9 @@ using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,6 +38,7 @@ namespace report
             get => _mainConnectionString;
             set => _mainConnectionString = value;
         }
+        public object Theard { get; private set; }
 
         public MainWindow()
         {
@@ -77,7 +80,7 @@ namespace report
                     FontSize = font,
                     FontWeight = FontWeights.Bold,
                     Margin = new Thickness(marginLeft[i], 0, 0, 0),
-                    Width = wth[i]
+                    Width = wth[i],
                 };
                 stackPanelRow[0].Children.Add(aHead[i]);
             }
@@ -123,10 +126,20 @@ namespace report
                         Text = cell,
                         FontSize = font,
                         Margin = new Thickness(marginLeft[i], 20, 0, 0),
-                        Width = wth[i]
+                        Width = wth[i],
+                        //Формирую имя ячейки, чтобы проще было найти
+                        Name = "cl" + i + "_rw" + j.ToString()
                     };
                    
                     stackPanelRow[j].Children.Add(aHead[i]);
+                    //Вешаю событие на ФИО
+                    if (i == 1)
+                    {
+                        stackPanelRow[j].Children[i].MouseLeftButtonUp += new MouseButtonEventHandler(OpenQuestions);
+                        stackPanelRow[j].Children[i].MouseEnter += new MouseEventHandler(CursorHand);
+                        stackPanelRow[j].Children[i].MouseLeave += new MouseEventHandler(CursorArrow);
+                    }
+
                     i++;
                 }
                 StackPanelTable.Children.Add(stackPanelRow[j]);
@@ -149,7 +162,7 @@ namespace report
         }
 
         //Получение.отправка одиночого значения sql
-        private string SingleResult(string sql, string connectionString)
+        public string SingleResult(string sql, string connectionString)
         {
             string result = null;
 
@@ -177,16 +190,33 @@ namespace report
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var item in GridName.Children)
-            {
-                if (item is StackPanel panel)
-                {
-                    panel.Children.Clear();
-                }
-            }
-            
+            StackPanelHead.Children.Clear();
+            StackPanelTable.Children.Clear();
             CreateTable();
             TotalSum();
+        }
+
+        private void OpenQuestions(object sender, EventArgs e)
+        {
+            string tn = ((TextBlock)sender).Name;
+            int rw = int.Parse(tn.Split('_')[1].Replace("rw", "")); //строка
+            int cl = int.Parse(tn.Split('_')[0].Replace("cl","")); //колонка
+            StackPanel stackPanelRow = (StackPanel) StackPanelTable.Children[rw];
+            tn = ((TextBlock) stackPanelRow.Children[0]).Text;
+
+            Questions qst = new Questions {Tn = tn};
+            qst.ShowDialog();
+            
+        }
+
+        private void CursorHand(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Hand;
+        }
+
+        private void CursorArrow(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Arrow;
         }
     }
 

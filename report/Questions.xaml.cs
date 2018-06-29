@@ -26,7 +26,6 @@ namespace report
         public Questions()
         {
             InitializeComponent();
-            CreateTable();
         }
 
         private void CreateTable()
@@ -36,7 +35,7 @@ namespace report
             int font = 16; // Размер шрифта
             const int cl = 4; //Кол-во колонок
             string[] headName = new string[cl] { "ТН", "ФИО", "Вопрос", "Результат" };
-            int[] wth = new int[cl] { 0, 0, 400, 120 };
+            int[] wth = new int[cl] { 0, 0, 600, 120 };
             int[] marginLeft = new int[cl] { 0, 0, 40, 20 };
             TextBlock[] aHead = new TextBlock[cl];
 
@@ -77,7 +76,7 @@ namespace report
                         ,[qst_id]
                         ,[qst_nm]
                         ,[Rezult]
-                        FROM [ufs].[dbo].[vwrep]
+                        FROM [dbo].[vwrep]
                         WHERE [usr_tn] = {Tn}
                         ORDER BY [qst_id]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
@@ -121,5 +120,10 @@ namespace report
             }
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            CreateTable();
+
+        }
     }
 }

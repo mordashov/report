@@ -29,8 +29,8 @@ namespace report
     public partial class MainWindow : Window
     {
 
-        //private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        private string _mainConnectionString = @"Data Source=LENOVO\SQLEXPRESS;Initial Catalog=ufs;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        //private string _mainConnectionString = @"Data Source=LENOVO\SQLEXPRESS;Initial Catalog=ufs;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         //private string _mainConnectionString = @"Data Source=alauda\alauda;Initial Catalog=ufs;User ID=prozorova_os;Password=q1w2e3r4";
 
         public string MainConnectionString
@@ -204,7 +204,9 @@ namespace report
             StackPanel stackPanelRow = (StackPanel) StackPanelTable.Children[rw];
             tn = ((TextBlock) stackPanelRow.Children[0]).Text;
 
-            Questions qst = new Questions {Tn = tn};
+            Questions qst = new Questions();
+            qst.Tn = tn;
+            string gg = qst.Tn;
             qst.ShowDialog();
             
         }

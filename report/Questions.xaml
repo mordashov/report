@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:report"
         mc:Ignorable="d"
-        Title="Questions" Height="450" Width="800">
+        Title="Questions" Height="600" Width="800" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="70"></RowDefinition>
+            <RowDefinition Height="300"></RowDefinition>
         </Grid.RowDefinitions>
-        <Label Name="LabelFio" Content="ФИО" FontSize="40" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
-        <StackPanel Name="StackPanelHead"></StackPanel>
-        <ScrollViewer>
-            <StackPanel Name="StackPanelQestions"></StackPanel>
+        <Label Grid.Row="0" Name="LabelFio" Content="ФИО" FontSize="40" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
+        <StackPanel Grid.Row="1" Name="StackPanelHead"></StackPanel>
+        <ScrollViewer Grid.Row="2" Height="340" >
+            <StackPanel Name="StackPanelQestions" ></StackPanel>
         </ScrollViewer>
     </Grid>
 </Window>

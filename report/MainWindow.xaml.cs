@@ -162,7 +162,7 @@ namespace report
         }
 
         //Получение.отправка одиночого значения sql
-        public string SingleResult(string sql, string connectionString)
+        public static string SingleResult(string sql, string connectionString)
         {
             string result = null;
 
@@ -203,15 +203,19 @@ namespace report
             int cl = int.Parse(tn.Split('_')[0].Replace("cl","")); //колонка
             StackPanel stackPanelRow = (StackPanel) StackPanelTable.Children[rw];
             tn = ((TextBlock) stackPanelRow.Children[0]).Text;
+            string fio = ((TextBlock)stackPanelRow.Children[1]).Text;
 
-            Questions qst = new Questions();
-            qst.Tn = tn;
-            string gg = qst.Tn;
+            Questions qst = new Questions
+            {
+                Tn = tn,
+                MainConnectionString = _mainConnectionString,
+                Fio = fio
+            };
             qst.ShowDialog();
             
         }
 
-        private void CursorHand(object sender, EventArgs e)
+        public void CursorHand(object sender, EventArgs e)
         {
             this.Cursor = Cursors.Hand;
         }
@@ -219,6 +223,11 @@ namespace report
         private void CursorArrow(object sender, EventArgs e)
         {
             this.Cursor = Cursors.Arrow;
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 

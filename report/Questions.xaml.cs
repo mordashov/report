@@ -21,7 +21,28 @@ namespace report
     /// </summary>
     public partial class Questions : Window
     {
-        public string Tn { get; set; }
+        private string _mainConnectionString;
+        private string _fio;
+        private string _tn;
+
+        public string MainConnectionString
+        {
+            get => _mainConnectionString;
+            set => _mainConnectionString = value;
+        }
+
+        public string Fio
+        {
+            get => _fio;
+            set => _fio = value;
+        }
+
+        public string Tn
+        {
+            get => _tn;
+            set => _tn = value;
+        }
+
 
         public Questions()
         {
@@ -30,8 +51,9 @@ namespace report
 
         private void CreateTable()
         {
-            MainWindow mainWindow = new MainWindow();
-            string tn = Tn;
+
+            LabelFio.Content = _fio;
+
             int font = 16; // Размер шрифта
             const int cl = 4; //Кол-во колонок
             string[] headName = new string[cl] { "ТН", "ФИО", "Вопрос", "Результат" };
@@ -43,7 +65,7 @@ namespace report
             int count = 0;
             try
             {
-                count = int.Parse(mainWindow.SingleResult(sql, mainWindow.MainConnectionString));
+                count = int.Parse(MainWindow.SingleResult(sql, _mainConnectionString));
             }
             catch (Exception e)
             {
@@ -62,14 +84,14 @@ namespace report
                     Text = headName[i],
                     FontSize = font,
                     FontWeight = FontWeights.Bold,
-                    Margin = new Thickness(marginLeft[i], 0, 0, 0),
+                    Padding = new Thickness(marginLeft[i], 0, 0, 0),
                     Width = wth[i]
                 };
                 stackPanelRow[0].Children.Add(aHead[i]);
             }
             StackPanelHead.Children.Add(stackPanelRow[0]);
 
-            string connectionString = mainWindow.MainConnectionString;
+            string connectionString = _mainConnectionString;
             sql = $@"
                     SELECT 
                         [usr_tn]
@@ -77,7 +99,7 @@ namespace report
                         ,[qst_nm]
                         ,[Rezult]
                         FROM [dbo].[vwrep]
-                        WHERE [usr_tn] = {Tn}
+                        WHERE [usr_tn] = {_tn}
                         ORDER BY [qst_id]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
             DataSet ds = new DataSet();
@@ -97,18 +119,27 @@ namespace report
 
                 stackPanelRow[j] = new StackPanel()
                 {
-                    Orientation = Orientation.Horizontal
+                    Orientation = Orientation.Horizontal,
+                    Background = Brushes.AntiqueWhite
+
                 };
 
                 int i = 0;
                 foreach (DataColumn col in ds.Tables["t"].Columns)
                 {
                     string cell = row[col].ToString();
+                    //Меняю цвет StackPanel
+                    if (cell == "0") stackPanelRow[j].Background = Brushes.AntiqueWhite;
+                    else stackPanelRow[j].Background = Brushes.LightGreen;
+                    //Заменяю 1 и 0 Правильно/Не правильно
+                    if (cell == "1") cell = "Верно";
+                    if (cell == "0") cell = "Не верно";
+
                     aHead[i] = new TextBlock()
                     {
                         Text = cell,
                         FontSize = font,
-                        Margin = new Thickness(marginLeft[i], 20, 0, 0),
+                        Padding = new Thickness(marginLeft[i], 20, 0, 0),
                         Width = wth[i]
                     };
 
@@ -123,7 +154,18 @@ namespace report
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             CreateTable();
+            TrueAnswers();
+        }
 
+        private void TrueAnswers()
+        {
+            string sql = $@"SELECT CONCAT( COUNT( [Rezult] ), '_',  SUM( [Rezult] ))
+                            FROM[dbo].[vwrep]
+                            WHERE[usr_tn] = {_tn}";
+            string res = MainWindow.SingleResult(sql, _mainConnectionString);
+            string total = res.Split('_')[0];
+            string success = res.Split('_')[1];
+            LabelTrueAnswers.Content = $"Правельных ответов {success} из {total}";
         }
     }
 }

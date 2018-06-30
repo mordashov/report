@@ -1,0 +1,29 @@
+﻿<Window x:Class="report.Answers"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:report"
+        mc:Ignorable="d"
+        Title="Answers" Height="620" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="361"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Name="LabelFio" Content="ФИО" FontSize="40" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
+        <Label Grid.Row="1" Name="LabelQuestion" Content="Вопрос" FontSize="30" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
+        <StackPanel Grid.Row="2" Name="StackPanelHead"></StackPanel>
+        <ScrollViewer Grid.Row="3" Margin="0,0,0,30" >
+            <StackPanel Name="StackPanelAnswers" ></StackPanel>
+        </ScrollViewer>
+        <Label Name="LabelTrueAnswers" Grid.Row="4" FontSize="30" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">Верно</Label>
+
+    </Grid>
+</Window>

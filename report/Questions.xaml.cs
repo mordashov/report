@@ -69,7 +69,7 @@ namespace report
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                MessageBox.Show(e.ToString());
                 Environment.Exit(0);
             }
 
@@ -128,22 +128,37 @@ namespace report
                 foreach (DataColumn col in ds.Tables["t"].Columns)
                 {
                     string cell = row[col].ToString();
-                    //Меняю цвет StackPanel
-                    if (cell == "0") stackPanelRow[j].Background = Brushes.AntiqueWhite;
-                    else stackPanelRow[j].Background = Brushes.LightGreen;
-                    //Заменяю 1 и 0 Правильно/Не правильно
-                    if (cell == "1") cell = "Верно";
-                    if (cell == "0") cell = "Не верно";
+                    if (i == 3)
+                    {
+                        //Меняю цвет StackPanel
+                        if (cell == "0") stackPanelRow[j].Background = Brushes.AntiqueWhite;
+                        else stackPanelRow[j].Background = Brushes.LightGreen;
+                        //Заменяю 1 и 0 Правильно/Не правильно
+                        if (cell == "1") cell = "Верно";
+                        if (cell == "0") cell = "Не верно";
+                    }
 
                     aHead[i] = new TextBlock()
                     {
                         Text = cell,
                         FontSize = font,
-                        Padding = new Thickness(marginLeft[i], 20, 0, 0),
-                        Width = wth[i]
+                        Padding = new Thickness(20, 10, 0, 10),
+                        Width = wth[i],
+                        TextWrapping = TextWrapping.WrapWithOverflow,
+                        //Формирую имя ячейки, чтобы проще было найти
+                        Name = "cl" + i + "_rw" + j.ToString()
                     };
 
                     stackPanelRow[j].Children.Add(aHead[i]);
+                    //Вешаю событие на ФИО
+                    if (i == 2)
+                    {
+                        stackPanelRow[j].Children[i].MouseLeftButtonUp += new MouseButtonEventHandler(OpenAnswers);
+                        stackPanelRow[j].Children[i].MouseEnter += new MouseEventHandler(CursorHand);
+                        stackPanelRow[j].Children[i].MouseLeave += new MouseEventHandler(CursorArrow);
+                    }
+
+
                     i++;
                 }
                 StackPanelQestions.Children.Add(stackPanelRow[j]);
@@ -166,6 +181,41 @@ namespace report
             string total = res.Split('_')[0];
             string success = res.Split('_')[1];
             LabelTrueAnswers.Content = $"Правельных ответов {success} из {total}";
+        }
+
+        private void OpenAnswers(object sender, EventArgs e)
+        {
+            string tn = ((TextBlock)sender).Name;
+            int rw = int.Parse(tn.Split('_')[1].Replace("rw", "")); //строка
+            int cl = int.Parse(tn.Split('_')[0].Replace("cl", "")); //колонка
+            StackPanel stackPanelRow = (StackPanel)StackPanelQestions.Children[rw];
+            tn = ((TextBlock)stackPanelRow.Children[0]).Text;
+            string qstId = ((TextBlock)stackPanelRow.Children[1]).Text;
+            string qstNm = ((TextBlock)stackPanelRow.Children[2]).Text;
+            string rs = ((TextBlock)stackPanelRow.Children[3]).Text;
+            string fio = LabelFio.Content.ToString();
+
+            Answers qst = new Answers
+            {
+                Tn = tn,
+                MainConnectionString = _mainConnectionString,
+                Fio = fio,
+                QstId = qstId,
+                QstName = qstNm,
+                Rs = rs
+            };
+            qst.ShowDialog();
+
+        }
+
+        public void CursorHand(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Hand;
+        }
+
+        private void CursorArrow(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Arrow;
         }
     }
 }

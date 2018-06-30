@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:report"
         mc:Ignorable="d"
-        Title="Report" Height="800" Width="800" ScrollViewer.CanContentScroll="True" Closed="Window_Closed" ResizeMode="CanMinimize">
+        Title="Отчет по тестированию" Height="800" Width="800" ScrollViewer.CanContentScroll="True" Closed="Window_Closed" ResizeMode="CanMinimize">
     <Grid Name ="GridName">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100"></ColumnDefinition>

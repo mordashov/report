@@ -5,25 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:report"
         mc:Ignorable="d"
-        Title="Answers" Height="620" Width="800">
+        Title="Ответы" Height="620" Width="900" Loaded="Window_Loaded" ResizeMode="CanMinimize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"></RowDefinition>
-            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
-            <RowDefinition Height="361"></RowDefinition>
+            <RowDefinition MaxHeight="361"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Name="LabelFio" Content="ФИО" FontSize="40" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
-        <Label Grid.Row="1" Name="LabelQuestion" Content="Вопрос" FontSize="30" VerticalContentAlignment="Center" Margin="40,0,40,0"></Label>
+        <Label Grid.Row="1" Name="LabelQuestion" FontSize="25" VerticalContentAlignment="Center" Margin="40,0,40,0">
+            <TextBlock Name="TextBlockQuestion" TextWrapping="Wrap">Ответ</TextBlock>
+        </Label>
         <StackPanel Grid.Row="2" Name="StackPanelHead"></StackPanel>
-        <ScrollViewer Grid.Row="3" Margin="0,0,0,30" >
+        <ScrollViewer Grid.Row="3" Margin="0,0,0,10">
             <StackPanel Name="StackPanelAnswers" ></StackPanel>
         </ScrollViewer>
-        <Label Name="LabelTrueAnswers" Grid.Row="4" FontSize="30" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">Верно</Label>
+        <Label Name="LabelTrueAnswers" Grid.Row="4" FontSize="30" FontWeight="Bold" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0,10,0,0" Content="Верно"></Label>
 
     </Grid>
 </Window>

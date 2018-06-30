@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:report"
         mc:Ignorable="d"
-        Title="Questions" Height="680" Width="800" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="Вопросы" Height="680" Width="800" Loaded="Window_Loaded" ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>

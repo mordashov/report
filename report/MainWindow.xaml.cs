@@ -64,7 +64,7 @@ namespace report
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                MessageBox.Show(e.ToString());
                 Environment.Exit(0);
             }
 
@@ -133,7 +133,7 @@ namespace report
                    
                     stackPanelRow[j].Children.Add(aHead[i]);
                     //Вешаю событие на ФИО
-                    if (i == 1)
+                    if (i == 1 & !string.IsNullOrEmpty(row[2].ToString()))
                     {
                         stackPanelRow[j].Children[i].MouseLeftButtonUp += new MouseButtonEventHandler(OpenQuestions);
                         stackPanelRow[j].Children[i].MouseEnter += new MouseEventHandler(CursorHand);

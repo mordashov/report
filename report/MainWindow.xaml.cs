@@ -19,6 +19,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ExportToExcel;
+using Microsoft.Win32;
 
 
 namespace report
@@ -228,6 +230,62 @@ namespace report
         private void Window_Closed(object sender, EventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void ButtonExcel_Click(object sender, RoutedEventArgs e)
+        {
+            string connectionString = MainConnectionString;
+            string sql = @"
+                    SELECT
+                        [usr].[usr_tn] as ТН
+                      ,[usr].[usr_fln] as ФИО
+                      ,[vwrep].[qst_nm] as Вопрос
+                      ,[vwrep].[usr_st] as Начало
+                      ,[vwrep].[usr_fn] as Окончание
+                      ,[vwrep].[usr_login] as Логин
+                      ,CASE 
+	                  WHEN [vwrep].[usr_login] IS NULL
+					  THEN NULL
+					  ELSE 
+						CASE [Rezult]
+						WHEN 1
+						THEN 'Верно'
+						ELSE 'Не верно'
+						END 
+					  END as Результат
+                  FROM [dbo].[vwrep]
+				  RIGHT JOIN [usr] ON [usr].[usr_tn] = [vwrep].[usr_tn]
+                  ORDER BY [usr].[usr_fln], [usr].[usr_tn]";
+            SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
+            DataSet ds = new DataSet();
+            try
+            {
+                da.Fill(ds, "t");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Не могу получить доступ к базе данных!");
+                Environment.Exit(0);
+            }
+
+            string file = "";
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel file (*.xlsx)|*.xlsx";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    CreateExcelFile.CreateExcelDocument(ds, saveFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Couldn't create Excel file.\r\nException: " + ex.Message);
+                    return;
+                }
+            }
+
+            
         }
     }
 

@@ -81,7 +81,7 @@ namespace report
             int[] marginLeft = new int[cl] { 0, 40, 20, 0, 20 };
             TextBlock[] aHead = new TextBlock[cl];
 
-            string sql = $"SELECT Count(*) FROM [dbo].[anw] WHERE [anw].[qst_id] = {_qstId};";
+            string sql = $"SELECT Count(*) FROM [sr].[anw] WHERE [anw].[qst_id] = {_qstId};";
             int count = 0;
             try
             {

@@ -31,9 +31,9 @@ namespace report
     public partial class MainWindow : Window
     {
 
-        private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        //private string _mainConnectionString = @"Data Source=DURON\SQLEXPRESS;Initial Catalog=testing;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         //private string _mainConnectionString = @"Data Source=LENOVO\SQLEXPRESS;Initial Catalog=ufs;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        //private string _mainConnectionString = @"Data Source=alauda\alauda;Initial Catalog=ufs;User ID=prozorova_os;Password=q1w2e3r4";
+        private string _mainConnectionString = @"Data Source=alauda\alauda;Initial Catalog=ufs;User ID=prozorova_os;Password=q1w2e3r4";
 
         public string MainConnectionString
         {
@@ -58,7 +58,7 @@ namespace report
             int[] marginLeft = new int[cl] { 40, 20, 20, 20};
             TextBlock[] aHead = new TextBlock[cl];
 
-            string sql = "SELECT Count(*) FROM [dbo].[usr];";
+            string sql = "SELECT Count(*) FROM [sr].[usr];";
             int count = 0;
             try
             {
@@ -90,14 +90,14 @@ namespace report
 
             string connectionString = MainConnectionString;
             sql = @"
-                    SELECT [usr].[usr_tn]
-                        ,[usr].[usr_fln]
-	                    ,DATEDIFF(MI, MIN([usr].[usr_st]), MAX([usr].[usr_fn])) as [time]
-                        , SUM([Rezult])*100/(SELECT COUNT(*) FROM[dbo].[qst]) as [pr]
-                    FROM [dbo].[vwrep]
-					RIGHT JOIN [dbo].[usr] ON [usr].[usr_tn] = [vwrep].[usr_tn]
-                    GROUP BY [usr].[usr_fln], [usr].[usr_tn]
-                    ORDER BY [usr].[usr_fln], [usr].[usr_tn]";
+                    SELECT [sr].[usr].[usr_tn]
+                        ,[sr].[usr].[usr_fln]
+	                    ,DATEDIFF(MI, MIN([sr].[usr].[usr_st]), MAX([sr].[usr].[usr_fn])) as [time]
+                        , SUM([Rezult])*100/(SELECT COUNT(*) FROM [sr].[qst]) as [pr]
+                    FROM [sr].[vwrep]
+					RIGHT JOIN [sr].[usr] ON [sr].[usr].[usr_tn] = [vwrep].[usr_tn]
+                    GROUP BY [sr].[usr].[usr_fln], [sr].[usr].[usr_tn]
+                    ORDER BY [sr].[usr].[usr_fln], [sr].[usr].[usr_tn]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
             DataSet ds = new DataSet();
             try
@@ -151,11 +151,11 @@ namespace report
 
         private void TotalSum()
         {
-            string sql = "SELECT COUNT(*) FROM [dbo].[usr]";
+            string sql = "SELECT COUNT(*) FROM [sr].[usr]";
 
             string t = SingleResult(sql, MainConnectionString);
 
-            sql = "SELECT COUNT(*) FROM [dbo].[usr] WHERE [usr].[usr_login] is not null AND [usr].[usr_login] != ''";
+            sql = "SELECT COUNT(*) FROM [sr].[usr] WHERE [sr].[usr].[usr_login] is not null AND [sr].[usr].[usr_login] != ''";
 
             string s = SingleResult(sql, MainConnectionString);
 
@@ -237,8 +237,8 @@ namespace report
             string connectionString = MainConnectionString;
             string sql = @"
                     SELECT
-                        [usr].[usr_tn] as ТН
-                      ,[usr].[usr_fln] as ФИО
+                        [sr].[usr].[usr_tn] as ТН
+                      ,[sr].[usr].[usr_fln] as ФИО
                       ,[vwrep].[qst_nm] as Вопрос
                       ,[vwrep].[usr_st] as Начало
                       ,[vwrep].[usr_fn] as Окончание
@@ -253,9 +253,9 @@ namespace report
 						ELSE 'Не верно'
 						END 
 					  END as Результат
-                  FROM [dbo].[vwrep]
-				  RIGHT JOIN [usr] ON [usr].[usr_tn] = [vwrep].[usr_tn]
-                  ORDER BY [usr].[usr_fln], [usr].[usr_tn]";
+                  FROM [sr].[vwrep]
+				  RIGHT JOIN [sr].[usr] ON [sr].[usr].[usr_tn] = [vwrep].[usr_tn]
+                  ORDER BY [sr].[usr].[usr_fln], [sr].[usr].[usr_tn]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
             DataSet ds = new DataSet();
             try
@@ -286,6 +286,50 @@ namespace report
             }
 
             
+        }
+
+        private void ButtonExcel1_Click(object sender, RoutedEventArgs e)
+        {
+            //для оперитвности просто скопировал предыдущую кнопку
+            string connectionString = MainConnectionString;
+            string sql = @"
+                        SELECT [sr].[usr].[usr_tn] as [ТН]
+                        ,[sr].[usr].[usr_fln] as [ФИО]
+	                    ,DATEDIFF(MI, MIN([sr].[usr].[usr_st]), MAX([sr].[usr].[usr_fn])) as [Время]
+                        , SUM([Rezult])*100/(SELECT COUNT(*) FROM [sr].[qst]) as [Процент]
+                    FROM [sr].[vwrep]
+					RIGHT JOIN [sr].[usr] ON [sr].[usr].[usr_tn] = [vwrep].[usr_tn]
+                    GROUP BY [sr].[usr].[usr_fln], [sr].[usr].[usr_tn]
+                    ORDER BY [sr].[usr].[usr_fln], [sr].[usr].[usr_tn]
+                    ";
+            SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
+            DataSet ds = new DataSet();
+            try
+            {
+                da.Fill(ds, "t");
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Не могу получить доступ к базе данных!");
+                Environment.Exit(0);
+            }
+
+            string file = "";
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Excel file (*.xlsx)|*.xlsx";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    CreateExcelFile.CreateExcelDocument(ds, saveFileDialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Couldn't create Excel file.\r\nException: " + ex.Message);
+                    return;
+                }
+            }
         }
     }
 

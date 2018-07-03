@@ -61,7 +61,7 @@ namespace report
             int[] marginLeft = new int[cl] { 0, 0, 40, 20 };
             TextBlock[] aHead = new TextBlock[cl];
 
-            string sql = "SELECT Count(*) FROM [dbo].[qst];";
+            string sql = "SELECT Count(*) FROM [sr].[qst];";
             int count = 0;
             try
             {
@@ -98,7 +98,7 @@ namespace report
                         ,[qst_id]
                         ,[qst_nm]
                         ,[Rezult]
-                        FROM [dbo].[vwrep]
+                        FROM [sr].[vwrep]
                         WHERE [usr_tn] = {_tn}
                         ORDER BY [qst_id]";
             SqlDataAdapter da = new SqlDataAdapter(sql, connectionString);
@@ -175,8 +175,8 @@ namespace report
         private void TrueAnswers()
         {
             string sql = $@"SELECT CONCAT( COUNT( [Rezult] ), '_',  SUM( [Rezult] ))
-                            FROM[dbo].[vwrep]
-                            WHERE[usr_tn] = {_tn}";
+                            FROM [sr].[vwrep]
+                            WHERE [usr_tn] = {_tn}";
             string res = MainWindow.SingleResult(sql, _mainConnectionString);
             string total = res.Split('_')[0];
             string success = res.Split('_')[1];
